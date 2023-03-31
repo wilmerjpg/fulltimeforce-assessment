@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 import { BackendAPI } from '../../api';
 import { CommitType, Pagination } from '../../types';
 import CommitDetail from '../CommitDetail';
 import LoadMore from '../LoadMore';
+import 'react-toastify/dist/ReactToastify.css';
 
 const backendAPI = new BackendAPI();
 
@@ -20,6 +22,19 @@ export default function CommitsList() {
       ...prev,
       page: prev.page + 1,
     }));
+  };
+
+  const handleErrorNotification = (errorMessage: string): void => {
+    toast.error(errorMessage, {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'light',
+    });
   };
 
   useEffect(() => {
@@ -46,7 +61,10 @@ export default function CommitsList() {
         if (typeof e === 'object' && e !== null && 'message' in e) {
           messageError = e.message;
         }
-        console.error(messageError as string);
+
+        if (messageError !== 'canceled') {
+          handleErrorNotification(messageError as string);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -70,6 +88,7 @@ export default function CommitsList() {
           There are no more commits to be loaded
         </p>
       )}
+      <ToastContainer />
     </div>
   );
 }
